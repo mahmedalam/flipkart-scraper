@@ -5,7 +5,7 @@ from .utils import get_user_agent
 
 
 async def get_page(url: str, client: httpx.AsyncClient, page_no: int | None = None,
-                   search: bool = False) -> Response | None:
+                   search: bool = False, timeout: int = 10) -> Response | None:
     """
     Fetches a webpage using an HTTP client.
 
@@ -17,6 +17,7 @@ async def get_page(url: str, client: httpx.AsyncClient, page_no: int | None = No
         client (httpx.AsyncClient): The HTTP client used for sending asynchronous requests.
         page_no (int | None, optional): The page number to retrieve if paginated. Defaults to None.
         search (bool, optional): Whether to perform a search query. Defaults to False.
+        timeout (int, optional): The timeout for the HTTP request in seconds. Defaults to 10.
 
     Returns:
         Response | None: The HTTP response object if successful, otherwise None.
@@ -34,12 +35,16 @@ async def get_page(url: str, client: httpx.AsyncClient, page_no: int | None = No
         "DNT": "1"  # Do Not Track header
     }
 
-    if search:
-        response = await client.get(search_url, params={"q": url}, headers=headers)
-    elif page_no is None or page_no <= 1:
-        response = await client.get(url, headers=headers)
-    else:
-        response = await client.get(url, params={"page": page_no}, headers=headers)
+    try:
+        if search:
+            response = await client.get(search_url, params={"q": url}, headers=headers, timeout=timeout)
+        elif page_no is None or page_no <= 1:
+            response = await client.get(url, headers=headers, timeout=timeout)
+        else:
+            response = await client.get(url, params={"page": page_no}, headers=headers, timeout=timeout)
+    except httpx.TimeoutException:
+        print(f"Timeout fetching page Url: {url} {'Page_No: ' + page_no if page_no else ''}: {timeout}s")
+        return None
 
     try:
         response.raise_for_status()
