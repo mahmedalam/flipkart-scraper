@@ -1,5 +1,6 @@
 import csv
 import random
+import time
 
 windows_user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
@@ -53,3 +54,7 @@ def save_to_csv(filename: str, data: list[dict], fieldnames: list[str]) -> None:
         dict_writer = csv.DictWriter(f, fieldnames)
         dict_writer.writeheader()
         dict_writer.writerows(data)
+
+
+def generate_timestamp_id() -> int:
+    return int(time.time() * 1000)
