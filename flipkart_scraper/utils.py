@@ -1,3 +1,4 @@
+import csv
 import random
 
 windows_user_agents = [
@@ -39,14 +40,16 @@ def save_file(data: str, filename: str) -> None:
         f.write(data)
 
 
-def append_file(data: str, filename: str) -> None:
-    with open(filename, "a", encoding="utf-8") as f:
-        f.write(data)
-
-
 def clean_price(price: str) -> float:
     return float(price.replace(",", "")[1:])
 
 
 def convert_to_int(number: str) -> int:
     return int(number.replace(",", ""))
+
+
+def save_to_csv(filename: str, data: list[dict], fieldnames: list[str]) -> None:
+    with open(filename, "w", encoding="utf-8") as f:
+        dict_writer = csv.DictWriter(f, fieldnames)
+        dict_writer.writeheader()
+        dict_writer.writerows(data)
